@@ -1,19 +1,56 @@
+//Initiate express.js
 const express = require('express');
 const app = express();
 
+//Port to run server on
 const PORT = 5000;
 
+//General imports
 const axios = require('axios');
-const path = require('path');
 const querystring = require('querystring');
 const morgan = require('morgan');
+const cors = require('cors')
 
-const secrets = require('./secrets.json');			// File containg secrets (clientId, clientSecret, URIs and scopes)
+//Flags setup
+const flags = require('flags');
 
-app.use(express.static('/static'));					// Serve static files
-app.use(express.json());       						// To support JSON-encoded bodies
+const clientIdFlag = flags.defineString('id');
+const clientSecretFlag = flags.defineString('secret');
+
+clientIdFlag.setDescription('[Required]Client ID from Spotify Developer App');
+clientSecretFlag.setDescription('[Required]Client Secret from Spotify Developer App');
+
+flags.parse();
+
+//Make sure all required flags are present
+let exit = false;
+if (!flags.get('id')) {
+	console.log("Missing argument 'id'")
+	exit = true;
+}
+
+if (!flags.get('secret')) {
+	console.log("Missing argument 'secret'")
+	exit = true
+}
+
+if (exit) {
+	process.exit(1)
+}
+
+const clientId = flags.get("id")
+const clientSecret = flags.get("secret")
+
+
+//Define scopes
+const scopes = "user-modify-playback-state user-read-playback-state streaming user-read-birthdate user-read-email user-read-private playlist-read-private playlist-read-collaborative"
+
+//Middleware setup
 app.use(express.urlencoded({ extended: true })); 	// To support URL-encoded bodies
+app.use(express.json());       						// To support JSON-encoded bodies
 app.use(morgan('tiny'))								// Logging
+app.use(cors())
+
 
 
 // Play song in Web Playback, plays new song if already started
@@ -41,7 +78,6 @@ app.get(('/play'), (req, res) => {
 // Requires: "access-token" header
 // Returns: user object
 app.get('/getUser', (req, res) => {
-	
 	axios.get('https://api.spotify.com/v1/me', {headers: {'Authorization': 'Bearer ' + req.headers['access-token']}})
 	.then(response => {
 		res.json(response.data);
@@ -98,30 +134,30 @@ app.put('/shuffle', (req, res) => {
 	  });
 });
 
+
 //----------------------Login/Callback/Refresh/Listen---------------------------
 
 // GET Login
+//Requires: redirect
 // Redirects: to Spotify login
 app.get(('/login'), (req, res) => {
 	res.redirect('http://accounts.spotify.com/authorize' + 
 		'?response_type=code' + 
-		'&client_id=' + secrets.clientId + 
-		'&scope=' + encodeURIComponent(secrets.scopes) + 
-		'&redirect_uri=' + encodeURIComponent(secrets.redirectURI));
+		'&client_id=' + clientId + 
+		'&scope=' + encodeURIComponent(scopes) + 
+		'&redirect_uri=' + encodeURIComponent(req.query.redirect));
 });
 
 // GET Callback from Spotify login
-// Requires: code
+// Requires: code, redirectUri
 // Returns: accessToken, expires and refreshToken
-app.get(('/callback'), (req, res) => {
-	let code = req.query.code;	//Callback code to be used to get access token
-
+app.post(('/callback'), (req, res) => {
 	axios.post('https://accounts.spotify.com/api/token', querystring.stringify({
-		code: code,
-		redirect_uri: secrets.redirectURI,
+		code: req.body['code'],
+		redirect_uri: req.body['redirectUri'],
 		grant_type: 'authorization_code',
-		client_id: secrets.clientId,
-		client_secret: secrets.clientSecret
+		client_id: clientId,
+		client_secret: clientSecret
 	}))
 	.then(response => {
 		res.json({
@@ -131,7 +167,7 @@ app.get(('/callback'), (req, res) => {
 	})
 	.catch(error => {
 		console.log('Error', error)
-        res.status(error.response.status).send(error.response.data);
+		res.status(error.response.status)//.send(error.response.data);
 	});
 });
 
@@ -142,8 +178,8 @@ app.post(('/refresh'), (req, res) => {
 	axios.post('https://accounts.spotify.com/api/token', querystring.stringify({
 		grant_type: 'refresh_token',
 		refresh_token: req.body['refresh-token'],
-		client_id: secrets.clientId,
-		client_secret: secrets.clientSecret
+		client_id: clientId,
+		client_secret: clientSecret
 	}))
 	.then(response => {
 		res.json({
@@ -160,5 +196,5 @@ app.post(('/refresh'), (req, res) => {
 
 // Start server on port PORT
 app.listen(PORT, () => {
-	console.log('Guettify running at port ' + PORT);
+	console.log('Gettify running at port ' + PORT);
 });
