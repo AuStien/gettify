@@ -11,36 +11,25 @@ const querystring = require('querystring');
 const morgan = require('morgan');
 const cors = require('cors')
 
-//Flags setup
-const flags = require('flags');
-
-const clientIdFlag = flags.defineString('id');
-const clientSecretFlag = flags.defineString('secret');
-
-clientIdFlag.setDescription('[Required]Client ID from Spotify Developer App');
-clientSecretFlag.setDescription('[Required]Client Secret from Spotify Developer App');
-
-flags.parse();
-
-//Make sure all required flags are present
+//Make sure all required environment variables are present
 let exit = false;
-if (!flags.get('id')) {
-	console.log("Missing argument 'id'")
+
+const clientId = process.env.GETTIFY_CLIENT_ID
+const clientSecret = process.env.GETTIFY_CLIENT_SECRET
+
+if (!clientId) {
+	console.log("Missing environment variable GETTIFY_CLIENT_ID ")
 	exit = true;
 }
 
-if (!flags.get('secret')) {
-	console.log("Missing argument 'secret'")
+if (!clientSecret) {
+	console.log("Missing environment variable GETTIFY_CLIENT_SECRET")
 	exit = true
 }
 
 if (exit) {
 	process.exit(1)
 }
-
-const clientId = flags.get("id")
-const clientSecret = flags.get("secret")
-
 
 //Define scopes
 const scopes = "user-modify-playback-state user-read-playback-state streaming user-read-birthdate user-read-email user-read-private playlist-read-private playlist-read-collaborative"
