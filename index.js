@@ -14,16 +14,16 @@ const cors = require('cors')
 //Make sure all required environment variables are present
 let exit = false;
 
-const clientId = process.env.GETTIFY_CLIENT_ID
-const clientSecret = process.env.GETTIFY_CLIENT_SECRET
+const clientId = process.env.CLIENT_ID
+const clientSecret = process.env.CLIENT_SECRET
 
 if (!clientId) {
-	console.log("Missing environment variable GETTIFY_CLIENT_ID ")
+	console.log("Missing environment variable CLIENT_ID ")
 	exit = true;
 }
 
 if (!clientSecret) {
-	console.log("Missing environment variable GETTIFY_CLIENT_SECRET")
+	console.log("Missing environment variable CLIENT_SECRET")
 	exit = true
 }
 
