@@ -137,7 +137,6 @@ app.put('/shuffle', (req, res) => {
 	  });
 });
 
-
 //----------------------Login/Callback/Refresh/Listen---------------------------
 
 // GET Login
