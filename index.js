@@ -58,8 +58,8 @@ app.get(('/'), (req, res) => {
 
 // Play song in Web Playback, plays new song if already started
 // Return status code
-app.get(('/play'), (req, res) => {
-	const uri = req.header('context-uri')												// (Optional) Uri of song to be played
+app.put(('/play'), (req, res) => {
+	const uri = req.body['context-uri']													// (Optional) Uri of song to be played
 	const accessToken = req.header('access-token');										// Access token
 	const deviceId = req.query['device_id'] ? '?device_id=' + req.query.deviceId : ''	// (Optional) Id of device to play on
 
@@ -80,8 +80,8 @@ app.get(('/play'), (req, res) => {
 // Get spotify self user
 // Requires: "access-token" header
 // Returns: user object
-app.get('/getUser', (req, res) => {
-	axios.get('https://api.spotify.com/v1/me', {headers: {'Authorization': 'Bearer ' + req.headers['access-token']}})
+app.get('/user', (req, res) => {
+	axios.get('https://api.spotify.com/v1/me', {headers: {'Authorization': 'Bearer ' + req.header('access-token')}})
 	.then(response => {
 		res.json(response.data);
 	})
@@ -93,7 +93,7 @@ app.get('/getUser', (req, res) => {
 // GET The playlists of current user
 // Requires: "access-token" header
 // Returns: An array of all playlists
-app.get('/getPlaylists', async (req, res) => {
+app.get('/playlist', async (req, res) => {
 	let items = [];
 	let next = 'https://api.spotify.com/v1/me/playlists?limit=50';
 	const options = {
