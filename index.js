@@ -40,6 +40,17 @@ app.use(express.json());       						// To support JSON-encoded bodies
 app.use(morgan('tiny'))								// Logging
 app.use(cors())
 
+//If SECRET_TOKEN present, require in request header "x-token"
+if(process.env.SECRET_TOKEN) {
+	app.use((req, res, next) => {
+		if(process.env.SECRET_TOKEN !== req.header("x-token")) {
+			res.status(401).send("Not authorized")
+		}else {
+			next()
+		}
+	})
+}
+
 
 
 // Play song in Web Playback, plays new song if already started
