@@ -52,12 +52,15 @@ if(process.env.SECRET_TOKEN) {
 }
 
 
+app.get(('/'), (req, res) => {
+	res.sendStatus(200)
+})
 
 // Play song in Web Playback, plays new song if already started
 // Return status code
 app.get(('/play'), (req, res) => {
-	const uri = req.header['context-uri']												// (Optional) Uri of song to be played
-	const accessToken = req.header['access-token'];										// Access token
+	const uri = req.header('context-uri')												// (Optional) Uri of song to be played
+	const accessToken = req.header('access-token');										// Access token
 	const deviceId = req.query['device_id'] ? '?device_id=' + req.query.deviceId : ''	// (Optional) Id of device to play on
 
 	axios.put('https://api.spotify.com/v1/me/player/play' + deviceId, { 'context_uri': uri }, {
@@ -94,7 +97,7 @@ app.get('/getPlaylists', async (req, res) => {
 	let items = [];
 	let next = 'https://api.spotify.com/v1/me/playlists?limit=50';
 	const options = {
-		headers: {'Authorization': 'Bearer ' + req.header['access-token'],
+		headers: {'Authorization': 'Bearer ' + req.header('access-token'),
 					'Accept': 'application/json',
 					'Content-Type': 'application/json'}
 	};
@@ -120,7 +123,7 @@ app.put('/shuffle', (req, res) => {
     	method: 'put',
         url: 'https://api.spotify.com/v1/me/player/shuffle?state=true' + deviceId,
         headers: {
-            'Authorization': 'Bearer ' + req.header['access-token'],
+            'Authorization': 'Bearer ' + req.header('access-token'),
             'Accept': 'application/json',
             'Content-Type': 'application/json'
         },
