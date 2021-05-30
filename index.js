@@ -121,7 +121,7 @@ app.put('/shuffle', (req, res) => {
 	const deviceId = req.query['device_id'] ? '&device_id=' + req.query['device_id'] : ''		// (Optional) The id of device to be shuffled
 	axios({
     	method: 'put',
-        url: 'https://api.spotify.com/v1/me/player/shuffle?state=true' + deviceId,
+        url: 'https://api.spotify.com/v1/me/player/shuffle?state=' + req.body["state"] + deviceId,
         headers: {
             'Authorization': 'Bearer ' + req.header('access-token'),
             'Accept': 'application/json',
