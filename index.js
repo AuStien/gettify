@@ -96,7 +96,7 @@ app.get('/user', (req, res) => {
 // Get list of devices
 // Requires: "access-token" header
 // Returns: list of devices
-app.get('/user', (req, res) => {
+app.get('/devices', (req, res) => {
 	axios.get('https://api.spotify.com/v1/me/player/devices', {headers: {'Authorization': 'Bearer ' + req.header('access-token')}})
 	.then(response => {
 		res.json(response.data);
