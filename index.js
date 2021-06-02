@@ -61,9 +61,12 @@ app.get(('/'), (req, res) => {
 app.put(('/play'), (req, res) => {
 	const uri = req.body['context-uri']													// (Optional) Uri of song to be played
 	const accessToken = req.header('access-token');										// Access token
-	const deviceId = req.query['device_id'] ? '?device_id=' + req.query.deviceId : ''	// (Optional) Id of device to play on
+	const deviceId = req.query['device_id'] 											// Id of device to play on
 
-	axios.put('https://api.spotify.com/v1/me/player/play' + deviceId, { 'context_uri': uri }, {
+	axios({
+		url: 'https://api.spotify.com/v1/me/player/play?device_id=' + deviceId, 
+		method: "PUT",
+		data: { context_uri: uri }, 
 		headers: {
 			'Authorization': 'Bearer ' + accessToken,
 			'Accept': 'application/json',
