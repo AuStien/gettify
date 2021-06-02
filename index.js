@@ -93,6 +93,19 @@ app.get('/user', (req, res) => {
 	})
 });
 
+// Get list of devices
+// Requires: "access-token" header
+// Returns: list of devices
+app.get('/user', (req, res) => {
+	axios.get('https://api.spotify.com/v1/me/player/devices', {headers: {'Authorization': 'Bearer ' + req.header('access-token')}})
+	.then(response => {
+		res.json(response.data);
+	})
+	.catch(error => {
+		res.status(error.response.status).send(error.response.data)
+	})
+});
+
 // GET The playlists of current user
 // Requires: "access-token" header
 // Returns: An array of all playlists
